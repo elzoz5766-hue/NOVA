@@ -1,0 +1,4546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NOVA</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#f5f6fa;
+  --card:#ffffff;
+  --text:#15151b;
+  --muted:#777b86;
+  --line:#e5e7ec;
+  --primary:#6c5ce7;
+  --primary2:#8e7dff;
+  --danger:#e74c3c;
+  --shadow:0 8px 30px rgba(0,0,0,.07);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html,body{
+  min-height:100%;
+  font-family:Arial,Tahoma,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+body.dark{
+  --bg:#0d0e12;
+  --card:#17181e;
+  --text:#f5f5f7;
+  --muted:#9a9ca7;
+  --line:#292b34;
+  --shadow:0 8px 30px rgba(0,0,0,.25);
+}
+
+button,
+input,
+textarea{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+  border:0;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+img{
+  max-width:100%;
+  display:block;
+}
+
+/* =====================================================
+   AUTH
+===================================================== */
+
+#authScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at top right,#8e7dff55,transparent 35%),
+    radial-gradient(circle at bottom left,#6c5ce755,transparent 35%),
+    var(--bg);
+}
+
+.authBox{
+  width:100%;
+  max-width:430px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:28px;
+  padding:28px;
+  box-shadow:var(--shadow);
+}
+
+.logo{
+  text-align:center;
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:2px;
+  color:var(--primary);
+  margin-bottom:5px;
+}
+
+.logoSub{
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:25px;
+}
+
+.authTabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:20px;
+}
+
+.authTabs button{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.authTabs button.active{
+  background:var(--primary);
+  color:white;
+}
+
+.formGroup{
+  margin-bottom:13px;
+}
+
+.formGroup label{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.formGroup input,
+.formGroup textarea,
+.searchBox input,
+.postBox textarea,
+.editBox input,
+.editBox textarea{
+  width:100%;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+  border-radius:13px;
+  padding:13px;
+  outline:none;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus,
+.searchBox input:focus,
+.postBox textarea:focus,
+.editBox input:focus,
+.editBox textarea:focus{
+  border-color:var(--primary);
+}
+
+.mainBtn{
+  width:100%;
+  padding:13px;
+  border-radius:14px;
+  background:var(--primary);
+  color:white;
+  font-weight:bold;
+  margin-top:5px;
+}
+
+.mainBtn:active{
+  transform:scale(.98);
+}
+
+/* =====================================================
+   APP
+===================================================== */
+
+#app{
+  display:none;
+  min-height:100vh;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  height:64px;
+  background:var(--card);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+}
+
+.topLogo{
+  font-size:25px;
+  font-weight:900;
+  color:var(--primary);
+  letter-spacing:1px;
+}
+
+.topActions{
+  display:flex;
+  gap:7px;
+}
+
+.iconBtn{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  background:var(--bg);
+  color:var(--text);
+  font-size:18px;
+}
+
+.layout{
+  max-width:1100px;
+  margin:auto;
+  padding:18px 14px 90px;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+/* =====================================================
+   NAV
+===================================================== */
+
+.bottomNav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:60;
+  height:68px;
+  background:var(--card);
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:center;
+}
+
+.navInner{
+  width:100%;
+  max-width:700px;
+  display:flex;
+  justify-content:space-around;
+}
+
+.navBtn{
+  flex:1;
+  background:transparent;
+  color:var(--muted);
+  font-size:12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+
+.navBtn span{
+  font-size:21px;
+}
+
+.navBtn.active{
+  color:var(--primary);
+}
+
+/* =====================================================
+   STORIES
+===================================================== */
+
+.sectionTitle{
+  font-size:18px;
+  font-weight:bold;
+  margin:15px 0 12px;
+}
+
+.stories{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding:4px 1px 12px;
+}
+
+.story{
+  min-width:70px;
+  text-align:center;
+}
+
+.storyAvatar{
+  width:60px;
+  height:60px;
+  margin:auto;
+  border-radius:50%;
+  padding:3px;
+  background:linear-gradient(135deg,var(--primary),#ff6bc4);
+}
+
+.storyAvatar img,
+.avatarFallback{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  object-fit:cover;
+  background:var(--card);
+}
+
+.avatarFallback{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  font-size:20px;
+}
+
+.storyName{
+  margin-top:5px;
+  font-size:11px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* =====================================================
+   CREATE POST
+===================================================== */
+
+.postBox{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  margin:12px 0;
+  box-shadow:var(--shadow);
+}
+
+.postBox textarea{
+  min-height:75px;
+  resize:none;
+}
+
+.postTools{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+
+.secondaryBtn{
+  padding:10px 13px;
+  border-radius:11px;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.primarySmall{
+  padding:10px 15px;
+  border-radius:11px;
+  background:var(--primary);
+  color:white;
+}
+
+/* =====================================================
+   POSTS
+===================================================== */
+
+.post{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+
+.postHeader{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.postUser{
+  flex:1;
+}
+
+.postUser strong{
+  display:block;
+  font-size:14px;
+}
+
+.postUser small{
+  color:var(--muted);
+}
+
+.postMenu{
+  background:transparent;
+  color:var(--muted);
+  font-size:20px;
+}
+
+.postContent{
+  padding:14px 0;
+  line-height:1.7;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.postImage{
+  width:100%;
+  max-height:500px;
+  object-fit:cover;
+  border-radius:14px;
+  margin-bottom:10px;
+}
+
+.postActions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  border-top:1px solid var(--line);
+  padding-top:10px;
+}
+
+.actionBtn{
+  background:transparent;
+  color:var(--muted);
+  padding:7px 9px;
+  border-radius:9px;
+}
+
+.actionBtn:hover{
+  background:var(--bg);
+}
+
+.actionBtn.active{
+  color:var(--primary);
+}
+
+.actionCount{
+  font-size:12px;
+  margin-right:2px;
+}
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.searchBox{
+  margin-bottom:15px;
+}
+
+.userResult{
+  background:var(--card);
+  border:1px solid var(--line);
+  padding:12px;
+  border-radius:15px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:9px;
+}
+
+.userResultInfo{
+  flex:1;
+}
+
+.userResultInfo strong{
+  display:block;
+}
+
+.userResultInfo small{
+  color:var(--muted);
+}
+
+.followBtn{
+  background:var(--primary);
+  color:white;
+  padding:8px 12px;
+  border-radius:10px;
+}
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+.profileHead{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+}
+
+.profileAvatar{
+  width:95px;
+  height:95px;
+  border-radius:50%;
+  margin:0 auto 12px;
+  object-fit:cover;
+}
+
+.profileName{
+  font-size:21px;
+  font-weight:bold;
+}
+
+.profileUsername{
+  color:var(--muted);
+  margin-top:3px;
+}
+
+.profileBio{
+  margin:12px auto;
+  max-width:500px;
+  line-height:1.6;
+}
+
+.profileStats{
+  display:flex;
+  justify-content:center;
+  gap:35px;
+  margin:15px 0;
+}
+
+.stat strong{
+  display:block;
+  font-size:18px;
+}
+
+.stat span{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.profileBtns{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+}
+
+.profileBtns button{
+  padding:10px 18px;
+  border-radius:11px;
+}
+
+.editBtn{
+  background:var(--bg);
+  color:var(--text);
+}
+
+.followProfileBtn{
+  background:var(--primary);
+  color:white;
+}
+
+/* =====================================================
+   CHAT
+===================================================== */
+
+.chatList{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.chatItem{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+}
+
+.chatItemInfo{
+  flex:1;
+}
+
+.chatItemInfo strong{
+  display:block;
+}
+
+.chatItemInfo small{
+  color:var(--muted);
+}
+
+.chatWindow{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:var(--bg);
+}
+
+.chatHeader{
+  height:60px;
+  background:var(--card);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+}
+
+.chatMessages{
+  position:absolute;
+  top:60px;
+  bottom:70px;
+  left:0;
+  right:0;
+  overflow:auto;
+  padding:15px;
+}
+
+.message{
+  max-width:80%;
+  padding:10px 13px;
+  border-radius:15px;
+  margin-bottom:8px;
+  line-height:1.5;
+  word-break:break-word;
+}
+
+.message.mine{
+  background:var(--primary);
+  color:white;
+  margin-right:auto;
+  border-bottom-right-radius:4px;
+}
+
+.message.other{
+  background:var(--card);
+  border:1px solid var(--line);
+  margin-left:auto;
+  border-bottom-left-radius:4px;
+}
+
+.chatInput{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  height:70px;
+  background:var(--card);
+  border-top:1px solid var(--line);
+  padding:10px;
+  display:flex;
+  gap:8px;
+}
+
+.chatInput input{
+  flex:1;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+  border-radius:13px;
+  padding:12px;
+  outline:none;
+}
+
+/* =====================================================
+   NOTIFICATIONS
+===================================================== */
+
+.notification{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:13px;
+  margin-bottom:8px;
+}
+
+.notification.unread{
+  border-right:4px solid var(--primary);
+}
+
+.notification small{
+  display:block;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+/* =====================================================
+   AI
+===================================================== */
+
+.aiBox{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:18px;
+}
+
+.aiTitle{
+  font-size:25px;
+  font-weight:bold;
+  color:var(--primary);
+  margin-bottom:5px;
+}
+
+.aiSub{
+  color:var(--muted);
+  margin-bottom:15px;
+}
+
+.aiMessages{
+  min-height:300px;
+  max-height:500px;
+  overflow:auto;
+  padding:5px;
+}
+
+.aiMessage{
+  padding:11px 14px;
+  border-radius:15px;
+  margin-bottom:8px;
+  line-height:1.6;
+}
+
+.aiMessage.user{
+  background:var(--primary);
+  color:white;
+}
+
+.aiMessage.bot{
+  background:var(--bg);
+}
+
+.aiInput{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.aiInput input{
+  flex:1;
+  padding:13px;
+  border-radius:13px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+.setting{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:14px;
+  margin-bottom:9px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.setting button{
+  padding:9px 13px;
+  border-radius:10px;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.logoutBtn{
+  background:var(--danger)!important;
+  color:white!important;
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:200;
+  background:rgba(0,0,0,.6);
+  align-items:center;
+  justify-content:center;
+  padding:15px;
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modalBox{
+  width:100%;
+  max-width:500px;
+  max-height:90vh;
+  overflow:auto;
+  background:var(--card);
+  border-radius:20px;
+  padding:18px;
+}
+
+.modalHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.modalClose{
+  width:35px;
+  height:35px;
+  border-radius:10px;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+#toast{
+  position:fixed;
+  bottom:82px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#15151b;
+  color:white;
+  padding:11px 17px;
+  border-radius:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  z-index:500;
+  max-width:90%;
+  text-align:center;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:35px 10px;
+}
+
+.loading{
+  text-align:center;
+  padding:25px;
+  color:var(--muted);
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:600px){
+
+  .layout{
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .authBox{
+    padding:20px;
+    border-radius:22px;
+  }
+
+  .profileStats{
+    gap:22px;
+  }
+
+  .message{
+    max-width:88%;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     AUTH SCREEN
+===================================================== -->
+
+<div id="authScreen">
+
+  <div class="authBox">
+
+    <div class="logo">NOVA</div>
+
+    <div class="logoSub">
+      عالمك الاجتماعي ✨
+    </div>
+
+    <div class="authTabs">
+
+      <button id="loginTab"
+              class="active"
+              onclick="showAuth('login')">
+        تسجيل الدخول
+      </button>
+
+      <button id="signupTab"
+              onclick="showAuth('signup')">
+        حساب جديد
+      </button>
+
+    </div>
+
+
+    <!-- LOGIN -->
+
+    <div id="loginForm">
+
+      <div class="formGroup">
+        <label>البريد الإلكتروني</label>
+        <input
+          id="loginEmail"
+          type="email"
+          autocomplete="email"
+          placeholder="example@email.com">
+      </div>
+
+      <div class="formGroup">
+        <label>كلمة المرور</label>
+        <input
+          id="loginPassword"
+          type="password"
+          autocomplete="current-password"
+          placeholder="••••••••">
+      </div>
+
+      <button class="mainBtn"
+              onclick="login()">
+        دخول
+      </button>
+
+    </div>
+
+
+    <!-- SIGNUP -->
+
+    <div id="signupForm" style="display:none">
+
+      <div class="formGroup">
+        <label>الاسم</label>
+        <input
+          id="signupName"
+          type="text"
+          placeholder="اسمك">
+      </div>
+
+      <div class="formGroup">
+        <label>اسم المستخدم</label>
+        <input
+          id="signupUser"
+          type="text"
+          placeholder="nova_user">
+      </div>
+
+      <div class="formGroup">
+        <label>البريد الإلكتروني</label>
+        <input
+          id="signupEmail"
+          type="email"
+          placeholder="example@email.com">
+      </div>
+
+      <div class="formGroup">
+        <label>كلمة المرور</label>
+        <input
+          id="signupPass"
+          type="password"
+          placeholder="6 أحرف على الأقل">
+      </div>
+
+      <button class="mainBtn"
+              onclick="signup()">
+        إنشاء الحساب
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     MAIN APP
+===================================================== -->
+
+<div id="app">
+
+  <header class="topbar">
+
+    <div class="topLogo">
+      NOVA
+    </div>
+
+    <div class="topActions">
+
+      <button class="iconBtn"
+              onclick="openPage('search')">
+        🔍
+      </button>
+
+      <button class="iconBtn"
+              onclick="openPage('notifications')">
+        🔔
+      </button>
+
+      <button class="iconBtn"
+              onclick="openPage('settings')">
+        ⚙️
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <main class="layout">
+
+
+    <!-- =================================================
+         HOME
+    ================================================= -->
+
+    <section id="page-home"
+             class="page active">
+
+      <div class="sectionTitle">
+        القصص
+      </div>
+
+      <div id="stories"
+           class="stories">
+        <div class="loading">جاري التحميل...</div>
+      </div>
+
+
+      <div class="postBox">
+
+        <textarea
+          id="postText"
+          placeholder="اكتب حاجة على NOVA..."></textarea>
+
+        <input
+          id="postImage"
+          type="url"
+          placeholder="رابط صورة (اختياري)"
+          style="width:100%;margin-top:8px;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text)">
+
+        <div class="postTools">
+
+          <button
+            class="primarySmall"
+            onclick="createPost()">
+            نشر
+          </button>
+
+          <button
+            class="secondaryBtn"
+            onclick="document.getElementById('postText').value=''">
+            مسح
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="sectionTitle">
+        آخر المنشورات
+      </div>
+
+      <div id="feed">
+        <div class="loading">جاري تحميل المنشورات...</div>
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         SEARCH
+    ================================================= -->
+
+    <section id="page-search"
+             class="page">
+
+      <div class="sectionTitle">
+        البحث
+      </div>
+
+      <div class="searchBox">
+
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="ابحث باسم المستخدم أو الاسم..."
+          oninput="searchUsers()">
+
+      </div>
+
+      <div id="searchResults">
+        <div class="empty">
+          اكتب اسمًا للبحث
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PROFILE
+    ================================================= -->
+
+    <section id="page-profile"
+             class="page">
+
+      <div id="profileContent">
+        <div class="loading">جاري تحميل الملف الشخصي...</div>
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         CHAT
+    ================================================= -->
+
+    <section id="page-chat"
+             class="page">
+
+      <div class="sectionTitle">
+        الرسائل
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+
+        <input
+          id="chatUsername"
+          placeholder="اسم المستخدم لبدء محادثة"
+          style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text)">
+
+        <button
+          class="primarySmall"
+          onclick="startChat()">
+          بدء
+        </button>
+
+      </div>
+
+      <div id="chatList"
+           class="chatList">
+        <div class="loading">جاري تحميل المحادثات...</div>
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         NOTIFICATIONS
+    ================================================= -->
+
+    <section id="page-notifications"
+             class="page">
+
+      <div class="sectionTitle">
+        الإشعارات
+      </div>
+
+      <div id="notificationsList">
+        <div class="loading">جاري التحميل...</div>
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         AI
+    ================================================= -->
+
+    <section id="page-ai"
+             class="page">
+
+      <div class="aiBox">
+
+        <div class="aiTitle">
+          NOVA AI
+        </div>
+
+        <div class="aiSub">
+          مساعدك الذكي داخل NOVA 🤖
+        </div>
+
+        <div id="aiMessages"
+             class="aiMessages">
+
+          <div class="aiMessage bot">
+            أهلاً بيك في NOVA AI ✨
+            <br>
+            اكتب سؤالك وأنا معاك.
+          </div>
+
+        </div>
+
+        <div class="aiInput">
+
+          <input
+            id="aiInput"
+            placeholder="اكتب رسالتك..."
+            onkeydown="if(event.key==='Enter')sendAI()">
+
+          <button
+            class="primarySmall"
+            onclick="sendAI()">
+            إرسال
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         SETTINGS
+    ================================================= -->
+
+    <section id="page-settings"
+             class="page">
+
+      <div class="sectionTitle">
+        الإعدادات
+      </div>
+
+      <div class="setting">
+
+        <span>
+          الوضع الليلي
+        </span>
+
+        <button onclick="toggleDarkMode()">
+          🌙 تبديل
+        </button>
+
+      </div>
+
+      <div class="setting">
+
+        <span>
+          تعديل الملف الشخصي
+        </span>
+
+        <button onclick="openEditProfile()">
+          تعديل
+        </button>
+
+      </div>
+
+      <div class="setting">
+
+        <span>
+          الحساب الحالي
+        </span>
+
+        <small id="settingsEmail"
+               style="color:var(--muted)">
+        </small>
+
+      </div>
+
+      <div class="setting">
+
+        <span>
+          تسجيل الخروج
+        </span>
+
+        <button
+          class="logoutBtn"
+          onclick="logout()">
+          خروج
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ===================================================
+       BOTTOM NAV
+  =================================================== -->
+
+  <nav class="bottomNav">
+
+    <div class="navInner">
+
+      <button class="navBtn active"
+              data-page="home"
+              onclick="openPage('home')">
+        <span>🏠</span>
+        الرئيسية
+      </button>
+
+      <button class="navBtn"
+              data-page="search"
+              onclick="openPage('search')">
+        <span>🔍</span>
+        بحث
+      </button>
+
+      <button class="navBtn"
+              data-page="chat"
+              onclick="openPage('chat')">
+        <span>💬</span>
+        رسائل
+      </button>
+
+      <button class="navBtn"
+              data-page="ai"
+              onclick="openPage('ai')">
+        <span>🤖</span>
+        AI
+      </button>
+
+      <button class="navBtn"
+              data-page="profile"
+              onclick="openPage('profile')">
+        <span>👤</span>
+        حسابي
+      </button>
+
+    </div>
+
+  </nav>
+
+</div>
+
+
+<!-- =====================================================
+     CHAT WINDOW
+===================================================== -->
+
+<div id="chatWindow"
+     class="chatWindow">
+
+  <div class="chatHeader">
+
+    <button class="iconBtn"
+            onclick="closeChat()">
+      ←
+    </button>
+
+    <div id="chatTitle"
+         style="font-weight:bold">
+      محادثة
+    </div>
+
+  </div>
+
+  <div id="chatMessages"
+       class="chatMessages">
+  </div>
+
+  <div class="chatInput">
+
+    <input
+      id="messageInput"
+      placeholder="اكتب رسالة..."
+      onkeydown="if(event.key==='Enter')sendMessage()">
+
+    <button
+      class="primarySmall"
+      onclick="sendMessage()">
+      إرسال
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     POST MODAL
+===================================================== -->
+
+<div id="commentsModal"
+     class="modal">
+
+  <div class="modalBox">
+
+    <div class="modalHeader">
+
+      <strong>
+        التعليقات
+      </strong>
+
+      <button class="modalClose"
+              onclick="closeModal('commentsModal')">
+        ×
+      </button>
+
+    </div>
+
+    <div id="commentsList">
+      <div class="loading">جاري التحميل...</div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+
+      <input
+        id="commentInput"
+        placeholder="اكتب تعليق..."
+        style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text)">
+
+      <button
+        class="primarySmall"
+        onclick="addComment()">
+        نشر
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     EDIT PROFILE MODAL
+===================================================== -->
+
+<div id="editModal"
+     class="modal">
+
+  <div class="modalBox editBox">
+
+    <div class="modalHeader">
+
+      <strong>
+        تعديل الملف الشخصي
+      </strong>
+
+      <button class="modalClose"
+              onclick="closeModal('editModal')">
+        ×
+      </button>
+
+    </div>
+
+    <div class="formGroup">
+      <label>الاسم</label>
+      <input id="editName">
+    </div>
+
+    <div class="formGroup">
+      <label>نبذة</label>
+      <textarea id="editBio"
+                rows="4"></textarea>
+    </div>
+
+    <div class="formGroup">
+      <label>رابط الصورة</label>
+      <input id="editAvatar">
+    </div>
+
+    <button
+      class="mainBtn"
+      onclick="saveProfile()">
+      حفظ
+    </button>
+
+  </div>
+
+</div>
+
+
+<div id="toast"></div>
+
+
+<script>
+
+/* =====================================================
+   01 - SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+  "https://dtazzoudppgidmnlxszl.supabase.co";
+
+/*
+  ضع الـ Publishable Key الخاص بمشروع NOVA هنا فقط.
+  لا ترسله في المحادثة.
+*/
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_gUAWQ4TMT3e54u7-Y92LJQ_nB9Ht2pe";
+
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =====================================================
+   02 - STATE
+===================================================== */
+
+let currentUser = null;
+let currentProfile = null;
+
+let currentConversation = null;
+let currentCommentPostId = null;
+
+let realtimeMessagesChannel = null;
+let realtimeNotificationsChannel = null;
+
+
+/* =====================================================
+   03 - HELPERS
+===================================================== */
+
+function escapeHTML(value){
+
+  if(value === null || value === undefined){
+    return "";
+  }
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+function getInitial(name){
+
+  if(!name){
+    return "?";
+  }
+
+  return String(name).trim().charAt(0).toUpperCase();
+}
+
+
+function avatarHTML(profile, className=""){
+
+  const name =
+    profile?.display_name ||
+    profile?.username ||
+    "NOVA";
+
+  if(profile?.avatar_url){
+
+    return `
+      <img
+        class="${className}"
+        src="${escapeHTML(profile.avatar_url)}"
+        alt=""
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+
+      <div
+        class="avatarFallback ${className}"
+        style="display:none">
+        ${escapeHTML(getInitial(name))}
+      </div>
+    `;
+
+  }
+
+  return `
+    <div class="avatarFallback ${className}">
+      ${escapeHTML(getInitial(name))}
+    </div>
+  `;
+}
+
+
+function formatDate(date){
+
+  if(!date){
+    return "";
+  }
+
+  try{
+
+    return new Date(date).toLocaleString(
+      "ar-EG",
+      {
+        dateStyle:"short",
+        timeStyle:"short"
+      }
+    );
+
+  }catch(e){
+
+    return "";
+  }
+}
+
+
+function toast(message){
+
+  const el =
+    document.getElementById("toast");
+
+  el.textContent = message;
+
+  el.classList.add("show");
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer =
+    setTimeout(
+      () => el.classList.remove("show"),
+      2800
+    );
+}
+
+
+function closeModal(id){
+
+  document
+    .getElementById(id)
+    .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   04 - AUTH UI
+===================================================== */
+
+function showAuth(type){
+
+  const login =
+    type === "login";
+
+  document
+    .getElementById("loginForm")
+    .style.display =
+    login ? "block" : "none";
+
+  document
+    .getElementById("signupForm")
+    .style.display =
+    login ? "none" : "block";
+
+  document
+    .getElementById("loginTab")
+    .classList.toggle(
+      "active",
+      login
+    );
+
+  document
+    .getElementById("signupTab")
+    .classList.toggle(
+      "active",
+      !login
+    );
+}
+
+
+/* =====================================================
+   05 - SIGNUP
+===================================================== */
+
+async function signup(){
+
+  const name =
+    document
+      .getElementById("signupName")
+      .value
+      .trim();
+
+  const username =
+    document
+      .getElementById("signupUser")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const email =
+    document
+      .getElementById("signupEmail")
+      .value
+      .trim();
+
+  const password =
+    document
+      .getElementById("signupPass")
+      .value;
+
+
+  if(!name || !username || !email || !password){
+
+    toast("من فضلك املأ كل البيانات");
+
+    return;
+  }
+
+
+  if(password.length < 6){
+
+    toast("كلمة المرور لازم تكون 6 أحرف على الأقل");
+
+    return;
+  }
+
+
+  if(!/^[a-z0-9_]+$/.test(username)){
+
+    toast(
+      "اسم المستخدم استخدم حروف إنجليزية وأرقام و _ فقط"
+    );
+
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.auth.signUp({
+
+      email,
+
+      password,
+
+      options:{
+        data:{
+          username,
+          display_name:name
+        }
+      }
+
+    });
+
+
+  if(error){
+
+    toast(error.message);
+
+    return;
+  }
+
+
+  if(!data.user){
+
+    toast("حصلت مشكلة أثناء إنشاء الحساب");
+
+    return;
+  }
+
+
+  /*
+    الـ trigger في قاعدة البيانات ينشئ profile
+    تلقائيًا، لكن نعمل upsert أيضًا لضمان البيانات.
+  */
+
+  const {
+    error:profileError
+  } =
+    await supabaseClient
+      .from("profiles")
+      .upsert({
+
+        id:data.user.id,
+
+        username,
+
+        display_name:name,
+
+        bio:"مرحباً بك في NOVA ✨"
+
+      });
+
+
+  if(profileError){
+
+    console.error(profileError);
+
+    toast(
+      "تم إنشاء الحساب لكن حصلت مشكلة في الملف الشخصي"
+    );
+
+    return;
+  }
+
+
+  /*
+    لو Supabase يحتاج تأكيد البريد،
+    session ممكن تكون null.
+  */
+
+  if(!data.session){
+
+    toast(
+      "تم إنشاء الحساب. لو طلب تأكيد البريد، أكّد البريد ثم سجل الدخول."
+    );
+
+    showAuth("login");
+
+    return;
+  }
+
+
+  currentUser =
+    data.user;
+
+  await loadCurrentProfile();
+
+  startApp();
+
+  toast("تم إنشاء حساب NOVA بنجاح 🎉");
+}
+
+
+/* =====================================================
+   06 - LOGIN
+===================================================== */
+
+async function login(){
+
+  const email =
+    document
+      .getElementById("loginEmail")
+      .value
+      .trim();
+
+  const password =
+    document
+      .getElementById("loginPassword")
+      .value;
+
+
+  if(!email || !password){
+
+    toast("اكتب البريد وكلمة المرور");
+
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.auth.signInWithPassword({
+
+      email,
+
+      password
+
+    });
+
+
+  if(error){
+
+    toast(error.message);
+
+    return;
+  }
+
+
+  currentUser =
+    data.user;
+
+  await loadCurrentProfile();
+
+  startApp();
+
+  toast("أهلاً بيك في NOVA 👋");
+}
+
+
+/* =====================================================
+   07 - LOAD PROFILE
+===================================================== */
+
+async function loadCurrentProfile(){
+
+  if(!currentUser){
+
+    return null;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id",currentUser.id)
+      .maybeSingle();
+
+
+  if(error){
+
+    console.error(error);
+
+    return null;
+  }
+
+
+  currentProfile =
+    data;
+
+  return data;
+}
+
+
+/* =====================================================
+   08 - START APP
+===================================================== */
+
+async function startApp(){
+
+  document
+    .getElementById("authScreen")
+    .style.display = "none";
+
+  document
+    .getElementById("app")
+    .style.display = "block";
+
+
+  const email =
+    currentUser?.email || "";
+
+  document
+    .getElementById("settingsEmail")
+    .textContent = email;
+
+
+  applyTheme();
+
+  await refreshHome();
+
+  await loadNotifications();
+
+  await loadChatList();
+
+  setupRealtime();
+
+}
+
+
+/* =====================================================
+   09 - LOGOUT
+===================================================== */
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+  currentUser = null;
+
+  currentProfile = null;
+
+  if(realtimeMessagesChannel){
+
+    await supabaseClient
+      .removeChannel(
+        realtimeMessagesChannel
+      );
+
+    realtimeMessagesChannel = null;
+  }
+
+
+  if(realtimeNotificationsChannel){
+
+    await supabaseClient
+      .removeChannel(
+        realtimeNotificationsChannel
+      );
+
+    realtimeNotificationsChannel = null;
+  }
+
+
+  document
+    .getElementById("app")
+    .style.display = "none";
+
+  document
+    .getElementById("authScreen")
+    .style.display = "flex";
+
+  showAuth("login");
+
+  toast("تم تسجيل الخروج");
+}
+
+
+/* =====================================================
+   10 - NAVIGATION
+===================================================== */
+
+function openPage(page){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(el => {
+
+      el.classList.remove("active");
+
+    });
+
+
+  const target =
+    document.getElementById(
+      "page-" + page
+    );
+
+
+  if(target){
+
+    target.classList.add("active");
+
+  }
+
+
+  document
+    .querySelectorAll(".navBtn")
+    .forEach(btn => {
+
+      btn.classList.toggle(
+        "active",
+        btn.dataset.page === page
+      );
+
+    });
+
+
+  if(page === "home"){
+
+    refreshHome();
+
+  }
+
+  if(page === "profile"){
+
+    loadProfilePage(
+      currentUser.id
+    );
+
+  }
+
+  if(page === "notifications"){
+
+    loadNotifications();
+
+  }
+
+  if(page === "chat"){
+
+    loadChatList();
+
+  }
+
+}
+
+
+/* =====================================================
+   11 - THEME
+===================================================== */
+
+function applyTheme(){
+
+  const dark =
+    localStorage.getItem(
+      "NOVA_DARK"
+    ) === "1";
+
+
+  document
+    .body
+    .classList.toggle(
+      "dark",
+      dark
+    );
+}
+
+
+function toggleDarkMode(){
+
+  const current =
+    localStorage.getItem(
+      "NOVA_DARK"
+    ) === "1";
+
+
+  localStorage.setItem(
+    "NOVA_DARK",
+    current ? "0" : "1"
+  );
+
+
+  applyTheme();
+}
+
+
+/* =====================================================
+   12 - HOME
+===================================================== */
+
+async function refreshHome(){
+
+  await loadStories();
+
+  await loadFeed();
+
+}
+
+
+/* =====================================================
+   13 - STORIES
+===================================================== */
+
+async function loadStories(){
+
+  const box =
+    document.getElementById("stories");
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select(
+        "id,username,display_name,avatar_url"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(20);
+
+
+  if(error){
+
+    console.error(error);
+
+    box.innerHTML =
+      `<div class="empty">تعذر تحميل المستخدمين</div>`;
+
+    return;
+  }
+
+
+  if(!data?.length){
+
+    box.innerHTML =
+      `<div class="empty">لا يوجد مستخدمون بعد</div>`;
+
+    return;
+  }
+
+
+  box.innerHTML =
+    data.map(profile => `
+
+      <div class="story"
+           onclick="loadProfilePage('${profile.id}')">
+
+        <div class="storyAvatar">
+
+          ${avatarHTML(
+            profile
+          )}
+
+        </div>
+
+        <div class="storyName">
+          ${escapeHTML(
+            profile.display_name ||
+            profile.username
+          )}
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* =====================================================
+   14 - CREATE POST
+===================================================== */
+
+async function createPost(){
+
+  const content =
+    document
+      .getElementById("postText")
+      .value
+      .trim();
+
+  const image_url =
+    document
+      .getElementById("postImage")
+      .value
+      .trim();
+
+
+  if(!content && !image_url){
+
+    toast("اكتب حاجة أو ضع رابط صورة");
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("posts")
+      .insert({
+
+        user_id:currentUser.id,
+
+        content:
+          content || null,
+
+        image_url:
+          image_url || null
+
+      });
+
+
+  if(error){
+
+    console.error(error);
+
+    toast(error.message);
+
+    return;
+  }
+
+
+  document
+    .getElementById("postText")
+    .value = "";
+
+  document
+    .getElementById("postImage")
+    .value = "";
+
+
+  toast("تم نشر المنشور 🎉");
+
+  await loadFeed();
+}
+
+
+/* =====================================================
+   15 - LOAD FEED
+===================================================== */
+
+async function loadFeed(){
+
+  const feed =
+    document.getElementById("feed");
+
+
+  feed.innerHTML =
+    `<div class="loading">جاري تحميل المنشورات...</div>`;
+
+
+  const {
+    data:posts,
+    error
+  } =
+    await supabaseClient
+      .from("posts")
+      .select(`
+        id,
+        user_id,
+        content,
+        image_url,
+        created_at,
+        profiles (
+          id,
+          username,
+          display_name,
+          avatar_url
+        )
+      `)
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(50);
+
+
+  if(error){
+
+    console.error(error);
+
+    feed.innerHTML =
+      `<div class="empty">تعذر تحميل المنشورات</div>`;
+
+    return;
+  }
+
+
+  if(!posts?.length){
+
+    feed.innerHTML =
+      `<div class="empty">
+        مفيش منشورات لسه. كن أول واحد ينشر 🚀
+      </div>`;
+
+    return;
+  }
+
+
+  const html = [];
+
+
+  for(const post of posts){
+
+    html.push(
+      await createPostHTML(post)
+    );
+
+  }
+
+
+  feed.innerHTML =
+    html.join("");
+}
+
+
+/* =====================================================
+   16 - POST HTML
+===================================================== */
+
+async function createPostHTML(post){
+
+  const profile =
+    post.profiles || {};
+
+
+  const {
+    count:likesCount
+  } =
+    await supabaseClient
+      .from("likes")
+      .select(
+        "*",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "post_id",
+        post.id
+      );
+
+
+  const {
+    data:myLike
+  } =
+    await supabaseClient
+      .from("likes")
+      .select("id")
+      .eq(
+        "post_id",
+        post.id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  const {
+    count:commentsCount
+  } =
+    await supabaseClient
+      .from("comments")
+      .select(
+        "*",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "post_id",
+        post.id
+      );
+
+
+  const {
+    data:mySave
+  } =
+    await supabaseClient
+      .from("saves")
+      .select("id")
+      .eq(
+        "post_id",
+        post.id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  return `
+
+    <article class="post">
+
+      <div class="postHeader">
+
+        <div
+          style="width:44px;height:44px;flex-shrink:0">
+          ${avatarHTML(profile)}
+        </div>
+
+        <div class="postUser">
+
+          <strong>
+            ${escapeHTML(
+              profile.display_name ||
+              profile.username ||
+              "NOVA"
+            )}
+          </strong>
+
+          <small>
+            @${escapeHTML(
+              profile.username || ""
+            )}
+            ·
+            ${escapeHTML(
+              formatDate(post.created_at)
+            )}
+          </small>
+
+        </div>
+
+        <button
+          class="postMenu"
+          onclick="postMenu('${post.id}','${post.user_id}')">
+          ⋮
+        </button>
+
+      </div>
+
+
+      ${
+        post.content
+        ?
+        `<div class="postContent">
+          ${escapeHTML(post.content)}
+        </div>`
+        :
+        ""
+      }
+
+
+      ${
+        post.image_url
+        ?
+        `<img
+          class="postImage"
+          src="${escapeHTML(post.image_url)}"
+          alt=""
+          onerror="this.style.display='none'">`
+        :
+        ""
+      }
+
+
+      <div class="postActions">
+
+        <button
+          class="actionBtn ${myLike ? "active" : ""}"
+          onclick="toggleLike('${post.id}')">
+
+          ❤️
+
+          <span class="actionCount">
+            ${likesCount || 0}
+          </span>
+
+        </button>
+
+
+        <button
+          class="actionBtn"
+          onclick="openComments('${post.id}')">
+
+          💬
+
+          <span class="actionCount">
+            ${commentsCount || 0}
+          </span>
+
+        </button>
+
+
+        <button
+          class="actionBtn ${mySave ? "active" : ""}"
+          onclick="toggleSave('${post.id}')">
+
+          🔖
+
+        </button>
+
+      </div>
+
+    </article>
+
+  `;
+}
+
+
+/* =====================================================
+   17 - LIKE
+===================================================== */
+
+async function toggleLike(postId){
+
+  const {
+    data:existing
+  } =
+    await supabaseClient
+      .from("likes")
+      .select("id")
+      .eq(
+        "post_id",
+        postId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if(existing){
+
+    await supabaseClient
+      .from("likes")
+      .delete()
+      .eq(
+        "id",
+        existing.id
+      );
+
+  }else{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("likes")
+        .insert({
+
+          post_id:postId,
+
+          user_id:currentUser.id
+
+        });
+
+
+    if(error){
+
+      toast(error.message);
+
+      return;
+    }
+
+  }
+
+
+  await loadFeed();
+}
+
+
+/* =====================================================
+   18 - SAVE
+===================================================== */
+
+async function toggleSave(postId){
+
+  const {
+    data:existing
+  } =
+    await supabaseClient
+      .from("saves")
+      .select("id")
+      .eq(
+        "post_id",
+        postId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if(existing){
+
+    await supabaseClient
+      .from("saves")
+      .delete()
+      .eq(
+        "id",
+        existing.id
+      );
+
+    toast("تم إزالة الحفظ");
+
+  }else{
+
+    const {
+      error
+    } =
+    await supabaseClient
+      .from("saves")
+      .insert({
+
+        post_id:postId,
+
+        user_id:currentUser.id
+
+      });
+
+
+    if(error){
+
+      toast(error.message);
+
+      return;
+    }
+
+    toast("تم حفظ المنشور 🔖");
+  }
+
+
+  await loadFeed();
+}
+
+
+/* =====================================================
+   19 - POST MENU
+===================================================== */
+
+async function postMenu(postId,userId){
+
+  if(userId !== currentUser.id){
+
+    toast("إدارة المنشور متاحة لصاحبه فقط");
+
+    return;
+  }
+
+
+  const ok =
+    confirm(
+      "هل تريد حذف هذا المنشور؟"
+    );
+
+
+  if(!ok){
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("posts")
+      .delete()
+      .eq(
+        "id",
+        postId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
+
+
+  if(error){
+
+    toast(error.message);
+
+    return;
+  }
+
+
+  toast("تم حذف المنشور");
+
+  await loadFeed();
+}
+
+
+/* =====================================================
+   20 - COMMENTS
+===================================================== */
+
+async function openComments(postId){
+
+  currentCommentPostId =
+    postId;
+
+
+  document
+    .getElementById("commentsModal")
+    .classList.add("show");
+
+
+  await loadComments();
+}
+
+
+async function loadComments(){
+
+  const box =
+    document.getElementById("commentsList");
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("comments")
+      .select(`
+        id,
+        user_id,
+        content,
+        created_at,
+        profiles (
+          username,
+          display_name,
+          avatar_url
+        )
+      `)
+      .eq(
+        "post_id",
+        currentCommentPostId
+      )
+      .order(
+        "created_at",
+        {
+          ascending:true
+        }
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    box.innerHTML =
+      `<div class="empty">تعذر تحميل التعليقات</div>`;
+
+    return;
+  }
+
+
+  if(!data?.length){
+
+    box.innerHTML =
+      `<div class="empty">لا توجد تعليقات بعد</div>`;
+
+    return;
+  }
+
+
+  box.innerHTML =
+    data.map(comment => `
+
+      <div
+        style="padding:10px 0;border-bottom:1px solid var(--line)">
+
+        <strong>
+          ${escapeHTML(
+            comment.profiles?.display_name ||
+            comment.profiles?.username ||
+            "مستخدم"
+          )}
+        </strong>
+
+        <div style="margin-top:5px;line-height:1.5">
+          ${escapeHTML(comment.content)}
+        </div>
+
+        <small style="color:var(--muted)">
+          ${escapeHTML(
+            formatDate(comment.created_at)
+          )}
+        </small>
+
+      </div>
+
+    `).join("");
+}
+
+
+async function addComment(){
+
+  const input =
+    document.getElementById(
+      "commentInput"
+    );
+
+  const content =
+    input.value.trim();
+
+
+  if(!content){
+
+    toast("اكتب تعليق");
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("comments")
+      .insert({
+
+        post_id:
+          currentCommentPostId,
+
+        user_id:
+          currentUser.id,
+
+        content
+
+      });
+
+
+  if(error){
+
+    toast(error.message);
+
+    return;
+  }
+
+
+  input.value = "";
+
+  await loadComments();
+
+  await loadFeed();
+}
+
+
+/* =====================================================
+   21 - PROFILE
+===================================================== */
+
+async function loadProfilePage(userId){
+
+  openPageWithoutRefresh("profile");
+
+
+  const box =
+    document.getElementById(
+      "profileContent"
+    );
+
+
+  box.innerHTML =
+    `<div class="loading">جاري التحميل...</div>`;
+
+
+  const {
+    data:profile,
+    error
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq(
+        "id",
+        userId
+      )
+      .maybeSingle();
+
+
+  if(error || !profile){
+
+    box.innerHTML =
+      `<div class="empty">الملف غير موجود</div>`;
+
+    return;
+  }
+
+
+  const {
+    count:postsCount
+  } =
+    await supabaseClient
+      .from("posts")
+      .select(
+        "*",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "user_id",
+        userId
+      );
+
+
+  const {
+    count:followersCount
+  } =
+    await supabaseClient
+      .from("follows")
+      .select(
+        "*",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "following_id",
+        userId
+      );
+
+
+  const {
+    count:followingCount
+  } =
+    await supabaseClient
+      .from("follows")
+      .select(
+        "*",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "follower_id",
+        userId
+      );
+
+
+  let isFollowing = false;
+
+
+  if(userId !== currentUser.id){
+
+    const {
+      data
+    } =
+      await supabaseClient
+        .from("follows")
+        .select("id")
+        .eq(
+          "follower_id",
+          currentUser.id
+        )
+        .eq(
+          "following_id",
+          userId
+        )
+        .maybeSingle();
+
+
+    isFollowing =
+      !!data;
+  }
+
+
+  box.innerHTML = `
+
+    <div class="profileHead">
+
+      <div
+        style="width:95px;height:95px;margin:auto auto 12px">
+
+        ${avatarHTML(
+          profile,
+          "profileAvatar"
+        )}
+
+      </div>
+
+      <div class="profileName">
+        ${escapeHTML(
+          profile.display_name
+        )}
+      </div>
+
+      <div class="profileUsername">
+        @${escapeHTML(
+          profile.username
+        )}
+      </div>
+
+      <div class="profileBio">
+        ${escapeHTML(
+          profile.bio || ""
+        )}
+      </div>
+
+
+      <div class="profileStats">
+
+        <div class="stat">
+          <strong>${postsCount || 0}</strong>
+          <span>منشور</span>
+        </div>
+
+        <div class="stat">
+          <strong>${followersCount || 0}</strong>
+          <span>متابع</span>
+        </div>
+
+        <div class="stat">
+          <strong>${followingCount || 0}</strong>
+          <span>يتابع</span>
+        </div>
+
+      </div>
+
+
+      <div class="profileBtns">
+
+        ${
+          userId === currentUser.id
+
+          ?
+
+          `<button
+             class="editBtn"
+             onclick="openEditProfile()">
+             تعديل الملف
+           </button>`
+
+          :
+
+          `<button
+             class="followProfileBtn"
+             onclick="toggleFollow('${userId}')">
+
+             ${
+               isFollowing
+               ? "إلغاء المتابعة"
+               : "متابعة"
+             }
+
+           </button>`
+        }
+
+      </div>
+
+    </div>
+
+
+    <div class="sectionTitle">
+      منشورات المستخدم
+    </div>
+
+    <div id="profilePosts">
+      <div class="loading">جاري التحميل...</div>
+    </div>
+
+  `;
+
+
+  await loadProfilePosts(userId);
+}
+
+
+function openPageWithoutRefresh(page){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(el =>
+      el.classList.remove("active")
+    );
+
+
+  document
+    .getElementById("page-" + page)
+    ?.classList.add("active");
+
+
+  document
+    .querySelectorAll(".navBtn")
+    .forEach(btn => {
+
+      btn.classList.toggle(
+        "active",
+        btn.dataset.page === page
+      );
+
+    });
+}
+
+
+/* =====================================================
+   22 - PROFILE POSTS
+===================================================== */
+
+async function loadProfilePosts(userId){
+
+  const box =
+    document.getElementById(
+      "profilePosts"
+    );
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("posts")
+      .select(`
+        id,
+        user_id,
+        content,
+        image_url,
+        created_at,
+        profiles (
+          id,
+          username,
+          display_name,
+          avatar_url
+        )
+      `)
+      .eq(
+        "user_id",
+        userId
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<div class="empty">تعذر تحميل المنشورات</div>`;
+
+    return;
+  }
+
+
+  if(!data?.length){
+
+    box.innerHTML =
+      `<div class="empty">لا توجد منشورات</div>`;
+
+    return;
+  }
+
+
+  const html = [];
+
+
+  for(const post of data){
+
+    html.push(
+      await createPostHTML(post)
+    );
+
+  }
+
+
+  box.innerHTML =
+    html.join("");
+}
+
+
+/* =====================================================
+   23 - FOLLOW
+===================================================== */
+
+async function toggleFollow(userId){
+
+  if(userId === currentUser.id){
+
+    return;
+  }
+
+
+  const {
+    data:existing
+  } =
+    await supabaseClient
+      .from("follows")
+      .select("id")
+      .eq(
+        "follower_id",
+        currentUser.id
+      )
+      .eq(
+        "following_id",
+        userId
+      )
+      .maybeSingle();
+
+
+  if(existing){
+
+    await supabaseClient
+      .from("follows")
+      .delete()
+      .eq(
+        "id",
+        existing.id
+      );
+
+    toast("تم إلغاء المتابعة");
+
+  }else{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("follows")
+        .insert({
+
+          follower_id:
+            currentUser.id,
+
+          following_id:
+            userId
+
+        });
+
+
+    if(error){
+
+      toast(error.message);
+
+      return;
+    }
+
+    toast("تمت المتابعة ✓");
+  }
+
+
+  await loadProfilePage(userId);
+}
+
+
+/* =====================================================
+   24 - EDIT PROFILE
+===================================================== */
+
+function openEditProfile(){
+
+  if(!currentProfile){
+
+    return;
+  }
+
+
+  document
+    .getElementById("editName")
+    .value =
+    currentProfile.display_name || "";
+
+
+  document
+    .getElementById("editBio")
+    .value =
+    currentProfile.bio || "";
+
+
+  document
+    .getElementById("editAvatar")
+    .value =
+    currentProfile.avatar_url || "";
+
+
+  document
+    .getElementById("editModal")
+    .classList.add("show");
+}
+
+
+async function saveProfile(){
+
+  const display_name =
+    document
+      .getElementById("editName")
+      .value
+      .trim();
+
+  const bio =
+    document
+      .getElementById("editBio")
+      .value
+      .trim();
+
+  const avatar_url =
+    document
+      .getElementById("editAvatar")
+      .value
+      .trim();
+
+
+  if(!display_name){
+
+    toast("الاسم مطلوب");
+
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("profiles")
+      .update({
+
+        display_name,
+
+        bio,
+
+        avatar_url:
+          avatar_url || null
+
+      })
+      .eq(
+        "id",
+        currentUser.id
+      )
+      .select()
+      .single();
+
+
+  if(error){
+
+    toast(error.message);
+
+    return;
+  }
+
+
+  currentProfile =
+    data;
+
+
+  closeModal("editModal");
+
+  toast("تم تحديث الملف الشخصي ✓");
+
+  await loadProfilePage(
+    currentUser.id
+  );
+}
+
+
+/* =====================================================
+   25 - SEARCH
+===================================================== */
+
+let searchTimer = null;
+
+
+function searchUsers(){
+
+  clearTimeout(searchTimer);
+
+  searchTimer =
+    setTimeout(
+      performSearch,
+      350
+    );
+}
+
+
+async function performSearch(){
+
+  const q =
+    document
+      .getElementById("searchInput")
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  const box =
+    document.getElementById(
+      "searchResults"
+    );
+
+
+  if(!q){
+
+    box.innerHTML =
+      `<div class="empty">اكتب اسمًا للبحث</div>`;
+
+    return;
+  }
+
+
+  const safe =
+    q.replaceAll(",","");
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select(`
+        id,
+        username,
+        display_name,
+        avatar_url
+      `)
+      .or(
+        `username.ilike.%${safe}%,display_name.ilike.%${safe}%`
+      )
+      .limit(30);
+
+
+  if(error){
+
+    console.error(error);
+
+    box.innerHTML =
+      `<div class="empty">حصل خطأ في البحث</div>`;
+
+    return;
+  }
+
+
+  if(!data?.length){
+
+    box.innerHTML =
+      `<div class="empty">لا توجد نتائج</div>`;
+
+    return;
+  }
+
+
+  box.innerHTML =
+    data.map(profile => `
+
+      <div class="userResult"
+           onclick="loadProfilePage('${profile.id}')">
+
+        <div
+          style="width:45px;height:45px;flex-shrink:0">
+
+          ${avatarHTML(profile)}
+
+        </div>
+
+        <div class="userResultInfo">
+
+          <strong>
+            ${escapeHTML(
+              profile.display_name
+            )}
+          </strong>
+
+          <small>
+            @${escapeHTML(
+              profile.username
+            )}
+          </small>
+
+        </div>
+
+      </div>
+
+    `).join("");
+}
+
+
+/* =====================================================
+   26 - CHAT LIST
+===================================================== */
+
+async function loadChatList(){
+
+  const box =
+    document.getElementById(
+      "chatList"
+    );
+
+
+  const {
+    data:memberships,
+    error
+  } =
+    await supabaseClient
+      .from("conversation_members")
+      .select(`
+        conversation_id,
+        conversations (
+          id,
+          created_at
+        )
+      `)
+      .eq(
+        "user_id",
+        currentUser.id
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    box.innerHTML =
+      `<div class="empty">تعذر تحميل الرسائل</div>`;
+
+    return;
+  }
+
+
+  if(!memberships?.length){
+
+    box.innerHTML =
+      `<div class="empty">
+        لا توجد محادثات بعد.
+        اكتب اسم مستخدم بالأعلى لبدء محادثة.
+      </div>`;
+
+    return;
+  }
+
+
+  const html = [];
+
+
+  for(const item of memberships){
+
+    const {
+      data:others
+    } =
+      await supabaseClient
+        .from("conversation_members")
+        .select(`
+          user_id,
+          profiles (
+            id,
+            username,
+            display_name,
+            avatar_url
+          )
+        `)
+        .eq(
+          "conversation_id",
+          item.conversation_id
+        )
+        .neq(
+          "user_id",
+          currentUser.id
+        )
+        .limit(1);
+
+
+    const other =
+      others?.[0]?.profiles;
+
+
+    if(!other){
+
+      continue;
+    }
+
+
+    html.push(`
+
+      <div
+        class="chatItem"
+        onclick="openConversation(
+          '${item.conversation_id}',
+          '${other.id}',
+          '${escapeHTML(other.display_name || other.username)}'
+        )">
+
+        <div
+          style="width:45px;height:45px;flex-shrink:0">
+
+          ${avatarHTML(other)}
+
+        </div>
+
+        <div class="chatItemInfo">
+
+          <strong>
+            ${escapeHTML(
+              other.display_name ||
+              other.username
+            )}
+          </strong>
+
+          <small>
+            @${escapeHTML(
+              other.username
+            )}
+          </small>
+
+        </div>
+
+      </div>
+
+    `);
+  }
+
+
+  box.innerHTML =
+    html.length
+    ? html.join("")
+    : `<div class="empty">لا توجد محادثات بعد</div>`;
+}
+
+
+/* =====================================================
+   27 - START CHAT
+===================================================== */
+
+async function startChat(){
+
+  const username =
+    document
+      .getElementById("chatUsername")
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  if(!username){
+
+    toast("اكتب اسم المستخدم");
+
+    return;
+  }
+
+
+  const {
+    data:user,
+    error
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select("id,username,display_name,avatar_url")
+      .eq(
+        "username",
+        username
+      )
+      .maybeSingle();
+
+
+  if(error){
+
+    toast(error.message);
+
+    return;
+  }
+
+
+  if(!user){
+
+    toast("المستخدم غير موجود");
+
+    return;
+  }
+
+
+  if(user.id === currentUser.id){
+
+    toast("لا يمكنك بدء محادثة مع نفسك");
+
+    return;
+  }
+
+
+  /*
+    نبحث عن محادثة موجودة بالفعل
+    بين الحسابين.
+  */
+
+  const {
+    data:myMemberships
+  } =
+    await supabaseClient
+      .from("conversation_members")
+      .select("conversation_id")
+      .eq(
+        "user_id",
+        currentUser.id
+      );
+
+
+  let conversationId = null;
+
+
+  for(const membership of (myMemberships || [])){
+
+    const {
+      data:otherMember
+    } =
+      await supabaseClient
+        .from("conversation_members")
+        .select("user_id")
+        .eq(
+          "conversation_id",
+          membership.conversation_id
+        )
+        .eq(
+          "user_id",
+          user.id
+        )
+        .maybeSingle();
+
+
+    if(otherMember){
+
+      conversationId =
+        membership.conversation_id;
+
+      break;
+    }
+  }
+
+
+  /*
+    لو مفيش محادثة، ننشئ واحدة.
+  */
+
+  if(!conversationId){
+
+    const {
+      data:newConversation,
+      error:createError
+    } =
+      await supabaseClient
+        .from("conversations")
+        .insert({})
+        .select()
+        .single();
+
+
+    if(createError){
+
+      toast(createError.message);
+
+      return;
+    }
+
+
+    conversationId =
+      newConversation.id;
+
+
+    /*
+      نضيف المستخدم الحالي.
+    */
+
+    const {
+      error:member1Error
+    } =
+      await supabaseClient
+        .from("conversation_members")
+        .insert({
+
+          conversation_id:
+            conversationId,
+
+          user_id:
+            currentUser.id
+
+        });
+
+
+    if(member1Error){
+
+      toast(member1Error.message);
+
+      return;
+    }
+
+
+    /*
+      إضافة الطرف الثاني.
+    */
+
+    const {
+      error:member2Error
+    } =
+      await supabaseClient
+        .from("conversation_members")
+        .insert({
+
+          conversation_id:
+            conversationId,
+
+          user_id:
+            user.id
+
+        });
+
+
+    if(member2Error){
+
+      toast(
+        "تم إنشاء المحادثة لكن تعذر إضافة الطرف الآخر: " +
+        member2Error.message
+      );
+
+      return;
+    }
+
+  }
+
+
+  document
+    .getElementById("chatUsername")
+    .value = "";
+
+
+  await loadChatList();
+
+
+  openConversation(
+    conversationId,
+    user.id,
+    user.display_name ||
+    user.username
+  );
+}
+
+
+/* =====================================================
+   28 - OPEN CONVERSATION
+===================================================== */
+
+async function openConversation(
+  conversationId,
+  otherUserId,
+  otherName
+){
+
+  currentConversation =
+    conversationId;
+
+
+  document
+    .getElementById("chatTitle")
+    .textContent =
+    otherName || "محادثة";
+
+
+  document
+    .getElementById("chatWindow")
+    .style.display =
+    "block";
+
+
+  await loadMessages();
+
+}
+
+
+/* =====================================================
+   29 - LOAD MESSAGES
+===================================================== */
+
+async function loadMessages(){
+
+  const box =
+    document.getElementById(
+      "chatMessages"
+    );
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("messages")
+      .select(`
+        id,
+        sender_id,
+        content,
+        created_at
+      `)
+      .eq(
+        "conversation_id",
+        currentConversation
+      )
+      .order(
+        "created_at",
+        {
+          ascending:true
+        }
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    box.innerHTML =
+      `<div class="empty">تعذر تحميل الرسائل</div>`;
+
+    return;
+  }
+
+
+  box.innerHTML =
+    (data || []).map(message => `
+
+      <div
+        class="message ${
+          message.sender_id === currentUser.id
+          ? "mine"
+          : "other"
+        }">
+
+        ${escapeHTML(
+          message.content
+        )}
+
+      </div>
+
+    `).join("");
+
+
+  box.scrollTop =
+    box.scrollHeight;
+}
+
+
+/* =====================================================
+   30 - SEND MESSAGE
+===================================================== */
+
+async function sendMessage(){
+
+  if(!currentConversation){
+
+    return;
+  }
+
+
+  const input =
+    document.getElementById(
+      "messageInput"
+    );
+
+
+  const content =
+    input.value.trim();
+
+
+  if(!content){
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("messages")
+      .insert({
+
+        conversation_id:
+          currentConversation,
+
+        sender_id:
+          currentUser.id,
+
+        content
+
+      });
+
+
+  if(error){
+
+    toast(error.message);
+
+    return;
+  }
+
+
+  input.value = "";
+
+  await loadMessages();
+}
+
+
+function closeChat(){
+
+  document
+    .getElementById("chatWindow")
+    .style.display =
+    "none";
+
+
+  currentConversation =
+    null;
+}
+
+
+/* =====================================================
+   31 - NOTIFICATIONS
+===================================================== */
+
+async function loadNotifications(){
+
+  if(!currentUser){
+
+    return;
+  }
+
+
+  const box =
+    document.getElementById(
+      "notificationsList"
+    );
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("notifications")
+      .select(`
+        id,
+        type,
+        content,
+        is_read,
+        created_at,
+        actor:profiles!notifications_actor_id_fkey (
+          username,
+          display_name,
+          avatar_url
+        )
+      `)
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(50);
+
+
+  if(error){
+
+    console.error(error);
+
+    /*
+      لو اسم العلاقة غير متاح في PostgREST،
+      نستخدم قراءة بسيطة.
+    */
+
+    const fallback =
+      await supabaseClient
+        .from("notifications")
+        .select("*")
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        )
+        .limit(50);
+
+
+    if(fallback.error){
+
+      box.innerHTML =
+        `<div class="empty">تعذر تحميل الإشعارات</div>`;
+
+      return;
+    }
+
+
+    renderNotifications(
+      fallback.data || []
+    );
+
+    return;
+  }
+
+
+  renderNotifications(
+    data || []
+  );
+}
+
+
+function renderNotifications(data){
+
+  const box =
+    document.getElementById(
+      "notificationsList"
+    );
+
+
+  if(!data.length){
+
+    box.innerHTML =
+      `<div class="empty">لا توجد إشعارات</div>`;
+
+    return;
+  }
+
+
+  box.innerHTML =
+    data.map(n => `
+
+      <div
+        class="notification ${
+          n.is_read ? "" : "unread"
+        }">
+
+        <div>
+          ${
+            n.actor
+            ?
+            `<strong>
+              ${escapeHTML(
+                n.actor.display_name ||
+                n.actor.username
+              )}
+            </strong>`
+            :
+            ""
+          }
+
+          ${escapeHTML(
+            n.content || "إشعار جديد"
+          )}
+        </div>
+
+        <small>
+          ${escapeHTML(
+            formatDate(n.created_at)
+          )}
+        </small>
+
+      </div>
+
+    `).join("");
+}
+
+
+/* =====================================================
+   32 - NOVA AI
+===================================================== */
+
+/*
+  لا تضع OpenAI API Key هنا.
+
+  لو أردنا AI حقيقي وآمن، نربطه لاحقًا
+  بـ Supabase Edge Function بحيث المفتاح السري
+  يظل على السيرفر.
+
+  اترك الرابط فاضيًا حاليًا.
+*/
+
+const NOVA_AI_URL = "";
+
+
+async function sendAI(){
+
+  const input =
+    document.getElementById(
+      "aiInput"
+    );
+
+  const text =
+    input.value.trim();
+
+
+  if(!text){
+
+    return;
+  }
+
+
+  const box =
+    document.getElementById(
+      "aiMessages"
+    );
+
+
+  box.innerHTML += `
+
+    <div class="aiMessage user">
+      ${escapeHTML(text)}
+    </div>
+
+  `;
+
+
+  input.value = "";
+
+  box.scrollTop =
+    box.scrollHeight;
+
+
+  if(!NOVA_AI_URL){
+
+    box.innerHTML += `
+
+      <div class="aiMessage bot">
+
+        NOVA AI جاهز من ناحية الواجهة 🤖✨
+
+        <br><br>
+
+        لسه محتاجين نوصل الواجهة
+        بـ Edge Function آمنة عشان يبقى
+        الذكاء الاصطناعي حقيقي بدون وضع
+        المفتاح السري داخل التطبيق.
+
+      </div>
+
+    `;
+
+    box.scrollTop =
+      box.scrollHeight;
+
+    return;
+  }
+
+
+  try{
+
+    const response =
+      await fetch(
+        NOVA_AI_URL,
+        {
+
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              message:text
+            })
+
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    box.innerHTML += `
+
+      <div class="aiMessage bot">
+        ${escapeHTML(
+          result.reply ||
+          result.message ||
+          "لم يصل رد."
+        )}
+      </div>
+
+    `;
+
+
+  }catch(error){
+
+    box.innerHTML += `
+
+      <div class="aiMessage bot">
+        حصل خطأ في الاتصال بـ NOVA AI.
+      </div>
+
+    `;
+
+  }
+
+
+  box.scrollTop =
+    box.scrollHeight;
+}
+
+
+/* =====================================================
+   33 - REALTIME
+===================================================== */
+
+async function setupRealtime(){
+
+  if(realtimeMessagesChannel){
+
+    await supabaseClient
+      .removeChannel(
+        realtimeMessagesChannel
+      );
+
+  }
+
+
+  if(realtimeNotificationsChannel){
+
+    await supabaseClient
+      .removeChannel(
+        realtimeNotificationsChannel
+      );
+
+  }
+
+
+  realtimeMessagesChannel =
+    supabaseClient
+      .channel(
+        "nova-messages-" +
+        currentUser.id +
+        "-" +
+        Date.now()
+      )
+      .on(
+
+        "postgres_changes",
+
+        {
+          event:"INSERT",
+          schema:"public",
+          table:"messages"
+        },
+
+        payload => {
+
+          if(
+            currentConversation &&
+            payload.new.conversation_id ===
+            currentConversation
+          ){
+
+            loadMessages();
+
+          }
+
+        }
+
+      )
+      .subscribe();
+
+
+  realtimeNotificationsChannel =
+    supabaseClient
+      .channel(
+        "nova-notifications-" +
+        currentUser.id +
+        "-" +
+        Date.now()
+      )
+      .on(
+
+        "postgres_changes",
+
+        {
+          event:"INSERT",
+          schema:"public",
+          table:"notifications",
+          filter:
+            "user_id=eq." +
+            currentUser.id
+        },
+
+        payload => {
+
+          loadNotifications();
+
+          toast("لديك إشعار جديد 🔔");
+
+        }
+
+      )
+      .subscribe();
+
+}
+
+
+/* =====================================================
+   34 - AUTH SESSION
+===================================================== */
+
+supabaseClient.auth.onAuthStateChange(
+  async (event,session) => {
+
+    if(session?.user){
+
+      currentUser =
+        session.user;
+
+      await loadCurrentProfile();
+
+      /*
+        نستخدم setTimeout حتى لا ننفذ
+        عمليات Supabase كثيرة داخل callback
+        مباشرة.
+      */
+
+      setTimeout(
+        () => {
+
+          startApp();
+
+        },
+        0
+      );
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   35 - BOOT
+===================================================== */
+
+async function boot(){
+
+  applyTheme();
+
+
+  const {
+    data
+  } =
+    await supabaseClient.auth.getSession();
+
+
+  if(data?.session?.user){
+
+    currentUser =
+      data.session.user;
+
+    await loadCurrentProfile();
+
+    startApp();
+
+  }else{
+
+    document
+      .getElementById("authScreen")
+      .style.display =
+      "flex";
+
+    document
+      .getElementById("app")
+      .style.display =
+      "none";
+
+  }
+
+}
+
+
+/* =====================================================
+   36 - START
+===================================================== */
+
+boot();
+
+</script>
+
+</body>
+</html>
